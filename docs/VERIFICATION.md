@@ -75,7 +75,17 @@ Load Video → Video Frame Sample (uniform) → … failed on both test videos w
 correct: its header has the frame count). Fix proposed: Comfy-Org/ComfyUI#17154 (with a regression test). For the Theora `.ogg`, the
 metadata estimate is 7576 against 7571 decodable frames, which the same node also cannot handle; not addressed there.
 
-## 5. Automated tests (CI)
+## 5. Clean install
+
+Fresh ComfyUI v0.38.0 checkout and Python 3.12 virtual environment (torch 2.14.1+cu130, ComfyUI's requirements, this pack's
+`requirements.txt`), `git clone` of this repository into `custom_nodes`, the checkpoint downloaded with
+`tools/download_model.py --models-dir ComfyUI/models/s2tok` (6.9 GB, 123 s including the SHA-256 check). `workflows/api/reconstruct_video.json`
+and `reconstruction_progress.json` ran unchanged on an `example.mp4` (the Groei clip transcoded to H.264 with ComfyUI's `save_to`), and
+`reconstruct_video.json` on the original Groei `.webm` (`frame_interval` 4) saved a `.ply` byte-identical to the official `scene.ply`.
+`comfy node validate` passes; the archive of `comfy node pack` has 37 files (200 kB) and no environment-variable, network or process
+code. The pack is not published to the Comfy Registry (the code and weights it runs are non-commercial).
+
+## 6. Automated tests (CI)
 
 `tests/` (29 tests) runs on the CPU with a tiny random S2Tok in the official checkpoint format (`save_checkpoint` / `load_model` of the
 vendored code; the ViT-Giant backbone is swapped for a 6-layer one while the tests run): preprocessing against `demo.py`, loading
@@ -85,4 +95,5 @@ frame interval / max frames, every-frame output, ComfyUI's PLY writer = official
 CPU), the vendored code against the upstream commit (bytes, and syntax trees for the one changed method), and the absence of
 environment-variable, network and process code in the package. `scripts/ci_queue_check.py` starts a real ComfyUI on the CPU, installs a
 CI-only package that switches the backbone to the tiny one, and runs both shipped workflows through the queue (a second scene run after
-the progress run must give a byte-identical `.ply`).
+the progress run must give a byte-identical `.ply`). CI matrix: Ubuntu 24.04 and Windows with Python 3.12 and torch 2.14.1, and Ubuntu with Python 3.10 and torch 2.8.0; all
+three jobs pass.

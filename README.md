@@ -45,6 +45,9 @@ Windows 11, RTX 5090 (32 GB), ComfyUI v0.38.0, torch 2.14.1 (details and raw num
   carries the one-statement fix proposed upstream ([S2Tok PR #1](https://github.com/Applied-Intuition-Open-Source/S2Tok/pull/1));
   its bf16 output equals the patched official code byte for byte, and fp32 is unaffected.
 - Real jobs: fp32 / bf16, CPU, 190-frame sequence, every-frame output, interrupt, unload and keep-loaded off.
+- **Clean install:** fresh ComfyUI v0.38.0 and Python environment, `git clone` of this repository, its requirements, the checkpoint
+  downloaded with `tools/download_model.py` (SHA-256 verified): both shipped workflows run unchanged, and the Groei scene gives the
+  same byte-identical `.ply`.
 - **CI** (GitHub Actions; Ubuntu and Windows; Python 3.10 and 3.12): CPU tests with a tiny random S2Tok in the official checkpoint
   format, the preprocessing compared with the official `demo.py` function, the vendored code compared byte for byte with the pinned
   upstream commit, and a real ComfyUI queue on the CPU. CI does not download the weights (6.9 GB).

@@ -1,7 +1,7 @@
 """Runtime on the CPU with a tiny random S2Tok in the official checkpoint format: preprocessing against the official demo.py, loading,
 streaming, SPLAT conversion. The trained model is compared with the official demo in docs/VERIFICATION.md."""
 
-import ast
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -13,12 +13,18 @@ from s2tok_comfy import runtime
 
 
 def official_center_crop_resize(upstream_dir: Path):
-    """`center_crop_resize` from the upstream demo.py, taken from its source (demo.py itself imports the model package at the top)."""
-    tree = ast.parse((upstream_dir / "demo.py").read_text(encoding="utf-8"))
-    fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "center_crop_resize")
-    namespace = {"Image": Image}
-    exec(compile(ast.Module(body=[fn], type_ignores=[]), "demo.py", "exec"), namespace)  # test-only: the upstream function, unchanged
-    return namespace["center_crop_resize"]
+    """`center_crop_resize` of the upstream demo.py, imported from the checkout. demo.py starts with `from s2tok import load_model`;
+    the vendored package is registered as `s2tok` first, so that import does not load the checkout's copy."""
+    package = runtime.vendored()
+    from s2tok.checkpoint import load_model
+
+    package.load_model = load_model
+    sys.path.insert(0, str(upstream_dir))
+    try:
+        import demo
+    finally:
+        sys.path.remove(str(upstream_dir))
+    return demo.center_crop_resize
 
 
 @pytest.mark.parametrize("shape", [(1080, 1920), (1920, 1080), (300, 301), (252, 252), (101, 77)])
