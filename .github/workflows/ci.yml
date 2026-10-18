@@ -1,0 +1,90 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# CPU only. No weights are downloaded: the model tests and the real-queue check build a tiny random S2Tok in the official checkpoint
+# format. The trained model (6.9 GB, CC BY-NC 4.0) is checked outside CI; see docs/VERIFICATION.md.
+env:
+  COMFYUI_REF: v0.38.0
+  COMFYUI_COMMIT: 6b747c0428c343e1417219641db93a4fb7cb69ae
+  UPSTREAM_COMMIT: 96e8f5885bc3ed9e4f5c5ffb2c66523d92447132
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+        python: ["3.12"]
+        torch: ["2.14.1"]
+        torchvision: ["0.29.1"]
+        include:
+          - os: ubuntu-24.04
+            python: "3.10"
+            torch: "2.8.0"
+            torchvision: "0.23.0"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: ComfyUI-S2Tok
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Reference checkouts (pinned)
+        run: |
+          git -c core.autocrlf=false clone --quiet --depth 1 --branch $env:COMFYUI_REF https://github.com/Comfy-Org/ComfyUI.git refs/ComfyUI
+          if ((git -C refs/ComfyUI rev-parse HEAD) -ne $env:COMFYUI_COMMIT) { throw "ComfyUI commit mismatch" }
+          git -c core.autocrlf=false clone --quiet --filter=blob:none https://github.com/Applied-Intuition-Open-Source/S2Tok.git refs/S2Tok
+          git -C refs/S2Tok -c core.autocrlf=false checkout --quiet $env:UPSTREAM_COMMIT
+
+      - name: Install (CPU)
+        run: |
+          $ErrorActionPreference = "Stop"
+          $PSNativeCommandUseErrorActionPreference = $true   # a failing pip must fail the step
+          python -m pip install --upgrade pip
+          # CPU torch first: on Linux ComfyUI's unpinned `torch` requirement would otherwise pull the CUDA build and its libraries
+          pip install torch==${{ matrix.torch }} torchvision==${{ matrix.torchvision }} --index-url https://download.pytorch.org/whl/cpu
+          pip install -r refs/ComfyUI/requirements.txt -r ComfyUI-S2Tok/requirements.txt pytest ruff
+          pip list
+
+      - name: Lint
+        run: ruff check --no-cache ComfyUI-S2Tok
+
+      - name: No absolute local paths in the repository
+        run: |
+          $files = git -C ComfyUI-S2Tok ls-files | Where-Object { $_ -notmatch '\.(png|jpg|webp|gif)$' } | ForEach-Object { Join-Path ComfyUI-S2Tok $_ }
+          $hits = $files | Select-String -Pattern '[A-Za-z]:\\{1,2}[A-Za-z0-9_.-]+\\|/home/[a-z]+/|/Users/[A-Za-z]+/'
+          if ($hits) { $hits | ForEach-Object { "$($_.Path):$($_.LineNumber)" }; throw "absolute local path found" }
+
+      - name: Tests (references required, nothing may be skipped)
+        env:
+          S2TOK_COMFYUI_DIR: ${{ github.workspace }}/refs/ComfyUI
+          S2TOK_UPSTREAM_DIR: ${{ github.workspace }}/refs/S2Tok
+          S2TOK_REQUIRE_REFERENCES: "1"
+        run: |
+          Set-Location ComfyUI-S2Tok
+          python -m pytest tests -q -rs -p no:cacheprovider -W ignore::DeprecationWarning -W ignore::FutureWarning
+
+      - name: Real ComfyUI queue on CPU (tiny random model)
+        run: |
+          python ComfyUI-S2Tok/scripts/ci_queue_check.py --comfyui refs/ComfyUI --workdir queue-logs
+
+      - name: ComfyUI log on failure
+        if: failure()
+        run: |
+          if (Test-Path queue-logs/comfyui.log) { Get-Content queue-logs/comfyui.log -Tail 120 }

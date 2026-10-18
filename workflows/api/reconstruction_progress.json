@@ -1,0 +1,11 @@
+{
+  "1": {"class_type": "LoadVideo", "inputs": {"file": "example.mp4"}},
+  "2": {"class_type": "GetVideoComponents", "inputs": {"video": ["1", 0]}},
+  "3": {"class_type": "S2TokLoader", "inputs": {"checkpoint": "s2tok_252.pt", "device": "auto", "keep_loaded": true}},
+  "4": {"class_type": "S2TokReconstruct", "inputs": {"model": ["3", 0], "images": ["2", 0], "frame_interval": 4, "max_frames": 0, "precision": "fp32", "every_frame": true}},
+  "5": {"class_type": "CreateCameraInfo", "inputs": {"mode": "quaternion", "mode.position_x": 0.0, "mode.position_y": 0.0, "mode.position_z": 0.0, "mode.quat_x": 0.0, "mode.quat_y": 0.0, "mode.quat_z": 0.0, "mode.quat_w": 1.0, "target_x": 0.0, "target_y": 0.0, "target_z": 0.0, "roll": 0.0, "fov": 60.0, "zoom": 1.0, "camera_type": "perspective"}},
+  "6": {"class_type": "RenderSplat", "inputs": {"splat": ["4", 0], "camera_info": ["5", 0], "width": 512, "height": 512, "frames": 1, "splat_scale": 1.0, "sharpen": 2.0, "headlight_shading": 0.0, "opacity_threshold": 0.0, "render_style": "color", "background": "#000000"}},
+  "7": {"class_type": "CreateVideo", "inputs": {"images": ["6", 0], "fps": 8.0}},
+  "8": {"class_type": "SaveVideo", "inputs": {"video": ["7", 0], "filename_prefix": "s2tok/progress", "format": "auto", "codec": "auto"}},
+  "9": {"class_type": "PreviewAny", "inputs": {"source": ["4", 1]}}
+}

@@ -1,0 +1,12 @@
+{
+  "1": {"class_type": "LoadVideo", "inputs": {"file": "example.mp4"}},
+  "2": {"class_type": "GetVideoComponents", "inputs": {"video": ["1", 0]}},
+  "3": {"class_type": "S2TokLoader", "inputs": {"checkpoint": "s2tok_252.pt", "device": "auto", "keep_loaded": true}},
+  "4": {"class_type": "S2TokReconstruct", "inputs": {"model": ["3", 0], "images": ["2", 0], "frame_interval": 4, "max_frames": 0, "precision": "fp32", "every_frame": false}},
+  "5": {"class_type": "SplatToFile3D", "inputs": {"splat": ["4", 0], "format": "ply"}},
+  "6": {"class_type": "SaveGaussianSplat", "inputs": {"model_3d": ["5", 0], "filename_prefix": "s2tok/scene", "viewport_state": {}, "width": 1024, "height": 1024}},
+  "7": {"class_type": "CreateCameraInfo", "inputs": {"mode": "quaternion", "mode.position_x": 0.0, "mode.position_y": 0.0, "mode.position_z": 0.0, "mode.quat_x": 0.0, "mode.quat_y": 0.0, "mode.quat_z": 0.0, "mode.quat_w": 1.0, "target_x": 0.0, "target_y": 0.0, "target_z": 0.0, "roll": 0.0, "fov": 60.0, "zoom": 1.0, "camera_type": "perspective"}},
+  "8": {"class_type": "RenderSplat", "inputs": {"splat": ["4", 0], "camera_info": ["7", 0], "width": 768, "height": 768, "frames": 1, "splat_scale": 1.0, "sharpen": 2.0, "headlight_shading": 0.0, "opacity_threshold": 0.0, "render_style": "color", "background": "#000000"}},
+  "9": {"class_type": "SaveImage", "inputs": {"images": ["8", 0], "filename_prefix": "s2tok/first_camera"}},
+  "10": {"class_type": "PreviewAny", "inputs": {"source": ["4", 1]}}
+}

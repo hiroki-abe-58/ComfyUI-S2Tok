@@ -1,0 +1,30 @@
+S2Tok for ComfyUI
+Copyright (c) 2026 hiroki-abe-58. The code outside s2tok_comfy/vendor/ is licensed under the MIT License (LICENSE).
+
+NON-COMMERCIAL: this node pack runs S2Tok, whose code and weights are licensed under CC BY-NC 4.0. Use it for non-commercial
+purposes only.
+
+Unofficial integration. Not affiliated with or endorsed by the S2Tok authors (Applied Intuition), ETH Zurich (ZipSplat), ByteDance
+(Depth Anything 3), Meta (DINOv2) or Comfy Org.
+
+Third-party code included in this repository
+---------------------------------------------
+s2tok_comfy/vendor/s2tok/
+    S2Tok, https://github.com/Applied-Intuition-Open-Source/S2Tok, commit 96e8f5885bc3ed9e4f5c5ffb2c66523d92447132.
+    Copyright 2026 The S2Tok Authors. Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0),
+    non-commercial use only: s2tok_comfy/vendor/LICENSE. Copies of the upstream files; s2tok/model.py was changed (bf16 SDPA kernel
+    fallback, marked in the file and described in s2tok_comfy/vendor/UPSTREAM.md), all other files are unchanged. The upstream
+    NOTICE, THIRD_PARTY_LICENSES and WEIGHTS_LICENSE.md are in the same folder. As the upstream NOTICE
+    says, parts are derived from ZipSplat (ETH Zurich), DINOv2 (Meta), Depth Anything 3 (ByteDance) and timm (Ross Wightman), all
+    Apache License 2.0, and those portions remain available under Apache-2.0 from the original projects.
+
+Model weights (not included)
+----------------------------
+tools/download_model.py fetches, when you run it, s2tok_252.pt from https://huggingface.co/AppliedIntuitionResearch/S2Tok:
+CC BY-NC 4.0, non-commercial use only (WEIGHTS_LICENSE.md). The weights are fine-tuned from ZipSplat (CC BY-NC 4.0), initialised
+from DA3-Giant (CC BY-NC 4.0), and trained on DL3DV-10K (non-commercial terms) and RealEstate10K; their terms apply too.
+
+Images in docs/images
+---------------------
+Renders of reconstructions of two videos from Wikimedia Commons by FakirNL, CC BY-SA 4.0 (docs/images/README.md has the sources);
+the renders are licensed under CC BY-SA 4.0 as well.

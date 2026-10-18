@@ -1,0 +1,26 @@
+[project]
+name = "s2tok"
+description = "S2Tok for ComfyUI (non-commercial): streaming 3D Gaussian reconstruction of a static scene from video frames, no camera poses needed, output as ComfyUI's SPLAT type. The official S2Tok model, run in-process; the saved .ply equals the official demo's byte for byte."
+version = "0.1.0"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = ["einops", "numpy", "pillow"]
+
+[project.urls]
+Repository = "https://github.com/hiroki-abe-58/ComfyUI-S2Tok"
+
+[tool.comfy]
+PublisherId = "hiroki-abe-58"
+DisplayName = "S2Tok for ComfyUI (non-commercial)"
+Icon = ""
+
+[tool.ruff]
+line-length = 180
+target-version = "py310"
+extend-exclude = ["s2tok_comfy/vendor/s2tok"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
