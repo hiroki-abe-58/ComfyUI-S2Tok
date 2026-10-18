@@ -52,7 +52,7 @@ Windows 11, RTX 5090 (32 GB), ComfyUI v0.38.0, torch 2.14.1 (details and raw num
   format, the preprocessing compared with the official `demo.py` function, the vendored code compared byte for byte with the pinned
   upstream commit, and a real ComfyUI queue on the CPU. CI does not download the weights (6.9 GB).
 
-**Not checked:** Linux or macOS with a GPU, AMD / Apple GPUs, other ComfyUI versions, reconstruction quality against the paper's
+**Not checked:** Linux or macOS with a GPU, AMD / Apple GPUs, other ComfyUI versions with the real model (the CPU tests and the real-queue check also run against ComfyUI v0.41.0 in CI), reconstruction quality against the paper's
 benchmarks (the pack reproduces the official outputs; it does not re-evaluate the model).
 
 ## Install

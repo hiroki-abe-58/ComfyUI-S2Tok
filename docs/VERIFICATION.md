@@ -97,3 +97,9 @@ environment-variable, network and process code in the package. `scripts/ci_queue
 CI-only package that switches the backbone to the tiny one, and runs both shipped workflows through the queue (a second scene run after
 the progress run must give a byte-identical `.ply`). CI matrix: Ubuntu 24.04 and Windows with Python 3.12 and torch 2.14.1, and Ubuntu with Python 3.10 and torch 2.8.0; all
 three jobs pass.
+
+## ComfyUI v0.41.0
+
+Since 2026-10-19 the CI also runs the test suite and the real-queue check against ComfyUI v0.41.0 (commit
+`98cc0bf84b7cb1383654c5b402e7612d875d6d22`, Ubuntu 24.04, Python 3.12 / torch 2.14.1), next to v0.38.0, the release the
+real-model checks above used. Both pass.
